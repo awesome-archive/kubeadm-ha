@@ -5,6 +5,13 @@
       dest: /etc/kubernetes/plugins/ingress-controller/crds.yaml
     register: ingress_traefik_crd_manifest
 
+  - name: 兼容低于 1.16 版本 kubernetes CRD apiVersion
+    lineinfile:
+      path: /etc/kubernetes/plugins/ingress-controller/crds.yaml
+      regexp: '^apiVersion:\ apiextensions.k8s.io/v1$'
+      line: 'apiVersion: apiextensions.k8s.io/v1beta1'
+    when: kube_version is version('1.16', '<')
+
   - name: 渲染 traefik-ingress-controller 配置文件
     template:
       src: traefik-ingress-controller/traefik-ingress-controller.yaml.j2

@@ -4,6 +4,13 @@
     dest: /etc/kubernetes/plugins/network-plugin/calico-typha.yaml
   register: calico_typha_manifest
 
+- name: 兼容低于 1.16 版本 kubernetes CRD apiVersion
+  lineinfile:
+    path: /etc/kubernetes/plugins/network-plugin/calico-typha.yaml
+    regexp: '^apiVersion:\ apiextensions.k8s.io/v1$'
+    line: 'apiVersion: apiextensions.k8s.io/v1beta1'
+  when: kube_version is version('1.16', '<')
+
 - name: 渲染 calicoctl 配置文件
   template:
     src: calico/calicoctl-daemonset.yaml.j2
